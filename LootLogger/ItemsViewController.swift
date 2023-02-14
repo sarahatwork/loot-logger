@@ -13,10 +13,21 @@ class ItemsViewController: UITableViewController {
     @IBAction func addNewItem(_ sender: UIButton) {
         let newItem = itemStore.createItem()
         
-        if let index = itemStore.allItems.firstIndex(of: newItem) {
-            let indexPath = IndexPath(row: index, section: 0)
-            tableView.insertRows(at: [indexPath], with: .automatic)
+        if (newItem.isChihuahua()) {
+            if let index = itemStore.chihuahuas.firstIndex(of: newItem) {
+                let indexPath = IndexPath(row: index, section: 0)
+                tableView.insertRows(at: [indexPath], with: .automatic)
+            }
+        } else {
+            if let index = itemStore.toys.firstIndex(of: newItem) {
+                let indexPath = IndexPath(row: index, section: 1)
+                tableView.insertRows(at: [indexPath], with: .automatic)
+            }
         }
+    }
+    
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 2
     }
     
     @IBAction func toggleEditingMode(_ sender: UIButton) {
@@ -30,12 +41,17 @@ class ItemsViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return itemStore.allItems.count
+        if (section == 0) {
+            return itemStore.chihuahuas.count
+        } else {
+            return itemStore.toys.count
+        }
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
-        let item = itemStore.allItems[indexPath.row]
+        let list = indexPath.section == 0 ? itemStore.chihuahuas : itemStore.toys
+        let item = list[indexPath.row]
         
         cell.textLabel?.text = item.name
         cell.detailTextLabel?.text = "$\(item.valueInDollars)"
@@ -44,18 +60,31 @@ class ItemsViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Loot"
+        if (section == 0) {
+            return "The Pack"
+        } else {
+            return "Their Toys"
+        }
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let item = itemStore.allItems[indexPath.row]
+            let item = indexPath.section == 0 ? itemStore.chihuahuas[indexPath.row] : itemStore.toys[indexPath.row]
             itemStore.removeItem(item)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
     
+    override func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+
+        if (sourceIndexPath.section != proposedDestinationIndexPath.section) || (sourceIndexPath.row == proposedDestinationIndexPath.row) {
+            return sourceIndexPath
+        }
+        
+        return proposedDestinationIndexPath
+    }
+    
     override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        itemStore.moveItem(from: sourceIndexPath.row, to: destinationIndexPath.row)
+        itemStore.moveItem(isChihuahua: sourceIndexPath.section == 0, from: sourceIndexPath.row, to: destinationIndexPath.row)
     }
 }

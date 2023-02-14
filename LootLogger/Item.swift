@@ -21,9 +21,13 @@ class Item: Equatable {
     }
     
     convenience init() {
-        let adjectives = ["Fluffy", "Shiny", "Red"]
-        let nouns = ["Apple", "Knife", "Chihuahua"]
-        let randomName = "\(adjectives.randomElement()!) \(nouns.randomElement()!)"
+        let chihuahuaNames = ["Julian", "Mikey", "Hugo", "Frank", "Larry"]
+        let toyAdjectives = ["Red", "Blue", "Green", "Yellow"]
+        let nouns = ["Rope Toy", "Squeaky Ball", "Chihuahua"]
+        let randomNoun = nouns.randomElement()!
+        let randomName = randomNoun == "Chihuahua" ?
+        "\(chihuahuaNames.randomElement()!) the \(randomNoun)" :
+        "\(toyAdjectives.randomElement()!) \(randomNoun)"
         let randomValue = Int.random(in: 0..<100)
         let randomSerialNumber = UUID().uuidString.components(separatedBy: "-").first!
         self.init(name: randomName, serialNumber: randomSerialNumber, valueInDollars: randomValue)
@@ -34,5 +38,9 @@ class Item: Equatable {
             && lhs.serialNumber == rhs.serialNumber
             && lhs.valueInDollars == rhs.valueInDollars
             && lhs.dateCreated == rhs.dateCreated
+    }
+    
+    func isChihuahua() -> Bool {
+        return name.contains("Chihuahua")
     }
 }
